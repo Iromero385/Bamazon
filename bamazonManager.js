@@ -72,6 +72,7 @@ function promptAction() {
         })
 }
 function displayAllItem() {
+    console.clear();
     var columns = "item_id as 'Item ID', "
     columns+= "product_name as 'Product Name', "
     columns+= "department_name as 'Department Name', "

@@ -66,10 +66,10 @@ function displayAllItem() {
     console.clear();
     var query = "Select  department_id as 'Department ID', departments.department_name as " 
     query+="'Department Name', departments.over_head as 'Overhead', " 
-    query+="sum(product_sales) as Totals, (departments.over_head - sum(product_sales)) as Profit "
+    query+="sum(product_sales) as Totals, (sum(product_sales) - departments.over_head) as Profit "
     query += "From departments left join products "
     query += "on departments.department_name = products.department_name " 
-    query+= "group by products.department_name"
+    query+= "group by departments.department_name"
     
     
     connection.query(query, function (err, res) {

@@ -20,7 +20,7 @@ var connection = mysql.createConnection({
 connection.connect(function(err) {
   if (err) throw err;
   console.log("connected as id " + connection.threadId);
-  DisplayAllItem();
+  displayAllItem();
   
 });
 
@@ -42,16 +42,28 @@ function promptAction(){
         checkingQuantity(response.itemId, response.quantity); 
     })
 }
-function DisplayAllItem() {
+function displayAllItem() {
   connection.query("SELECT * FROM products", function(err, res) {
     if (err) throw err;
-    // adding $ to prices.
-    for(var i = 0 ; i < res.length; i++){
-
-        res[i].price = "$ " + res[i].price; 
+    var table = res
+    // adding $ to prices and styling hearders
+    for(var i =0; i < table.length;i++){
+        
+        table[i]["Item Code"] = table[i].item_id;
+        delete table[i].item_id;
+        table[i]["Product Name"] = table[i].product_name;
+        delete table[i].product_name;
+        table[i]["Department Name"] = table[i].department_name;
+        delete table[i].department_name;
+        table[i]["Price"] = table[i].price;
+        delete table[i].price;
+        table[i].Price = "$ " + table[i].Price;
+        table[i]["In Stock"] = table[i].stock_quantity; 
+        delete table[i].stock_quantity;
     }
-    console.table(res);
+    console.table(table);
     promptAction(); 
+
   });
 }
 function checkingQuantity(itemId, quantity){
@@ -66,13 +78,13 @@ function checkingQuantity(itemId, quantity){
         else{
             console.log(chalk.yellow("We apologize for the inconvinience, Insufficient quantity!"));
             console.log(chalk.magentaBright("We only have "+ res[0].stock_quantity + "."))
-            DisplayAllItem();
+            displayAllItem();
         }
       });
 }
 function updateQuantity(response, itemId, userQuantity){
     var newStockQuantity = response[0].stock_quantity - userQuantity
-    console.log(newStockQuantity)
+ 
     var query = "Update products Set ? Where ?"
     connection.query(
         query,
@@ -88,8 +100,33 @@ function updateQuantity(response, itemId, userQuantity){
             if(error) throw error;
             else{
                 console.log(chalk.cyan("Congrants, your order has been place."))
-                console.log(chalk.red("Your total is "+ "$"+ response[0].price*userQuantity ))
-                DisplayAllItem();
+                console.log(chalk.red("Your total is "+ "$"+ updateProductSales(response, userQuantity) ))
+                
+                
+            } 
+        }
+    )
+}
+function updateProductSales(response, userQuantity){
+    var productSales = response[0].price*userQuantity
+    var query = "Update products Set ? Where ?"
+    connection.query(
+        query,
+        [
+            {
+                product_sales:productSales
+            },
+            {
+                item_id:response[0].item_id
+            }   
+        ],
+        function(error){
+            if(error) throw error;
+            else{
+                
+                displayAllItem();
+                return response[0].price * userQuantity
+                
             } 
         }
     )

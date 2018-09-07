@@ -29,7 +29,7 @@ function promptAction() {
         .prompt([
             {
                 type: "list",
-                message: "What item would you like to purchase?",
+                message: "What would you like to do?",
                 name: "action",
                 choices: [
                     {
@@ -51,7 +51,6 @@ function promptAction() {
             }
         ])
         .then(function (response) {
-            console.log(response)
             switch (response.action) {
                 case 1:
                     displayAllItem();
@@ -67,37 +66,31 @@ function promptAction() {
                     break;
                 case 5: 
                     console.log(chalk.yellow("Logging out"))
+                    connection.end();
                     break;
             }
         })
 }
 function displayAllItem() {
-    console.clear();
-    connection.query("SELECT * FROM products", function (err, res) {
-        if (err) throw err;
-        var table = res
-        // adding $ to prices and styling hearders
-        for (var i = 0; i < table.length; i++) {
+    var columns = "item_id as 'Item ID', "
+    columns+= "product_name as 'Product Name', "
+    columns+= "department_name as 'Department Name', "
+    columns+= "price as Price , "
+    columns+= "stock_quantity as 'Stock Quantity' "
+  connection.query("SELECT "+ columns + " FROM products", function(err, res) {
+    if (err) throw err;
+    var table = res
+    for(var i = 0; i < table.length; i++){
+        table[i].Price ="$" + table[i].Price
+    }
 
-            table[i]["Item Code"] = table[i].item_id;
-            delete table[i].item_id;
-            table[i]["Product Name"] = table[i].product_name;
-            delete table[i].product_name;
-            table[i]["Department Name"] = table[i].department_name;
-            delete table[i].department_name;
-            table[i]["Price"] = table[i].price;
-            delete table[i].price;
-            table[i].Price = "$ " + table[i].Price;
-            table[i]["In Stock"] = table[i].stock_quantity;
-            delete table[i].stock_quantity;
-        }
-        console.table(table);
-        promptAction();
+    console.table(table);
+    promptAction(); 
     });
 }
 function updateQuantity(itemId, userQuantity) {
     
-    var query = "update products set stock_quantity = stock_quantity + "+ userQuantity +" Where item_id =" + itemId
+    var query = "update products set stock_quantity = stock_quantity + " + userQuantity +" Where item_id =" + itemId
 
     connection.query(
         query,
@@ -109,24 +102,19 @@ function updateQuantity(itemId, userQuantity) {
     )
 }
 function lowerThanFiveItems() {
-    console.clear();
-    connection.query("SELECT * FROM products Where stock_quantity < 5", function (err, res) {
+    var columns = "item_id as 'Item ID', "
+    columns+= "product_name as 'Product Name', "
+    columns+= "department_name as 'Department Name', "
+    columns+= "price as Price , "
+    columns+= "stock_quantity as 'Stock Quantity', "
+    columns+= "product_sales as 'Product Sales'"
+    connection.query("SELECT "+ columns + " FROM products Where stock_quantity < 5", function (err, res) {
         if (err) throw err;
         var table = res
         // adding $ to prices and styling hearders
-        for (var i = 0; i < table.length; i++) {
-
-            table[i]["Item Code"] = table[i].item_id;
-            delete table[i].item_id;
-            table[i]["Product Name"] = table[i].product_name;
-            delete table[i].product_name;
-            table[i]["Department Name"] = table[i].department_name;
-            delete table[i].department_name;
-            table[i]["Price"] = table[i].price;
-            delete table[i].price;
-            table[i].Price = "$ " + table[i].Price;
-            table[i]["In Stock"] = table[i].stock_quantity;
-            delete table[i].stock_quantity;
+        for(var i = 0; i < table.length; i++){
+            table[i].Price ="$" + table[i].Price
+            table[i]["Product Sales"] ="$" +  numberWithCommas(table[i]["Product Sales"])
         }
         console.table(table);
         promptAction();
@@ -195,4 +183,6 @@ function insertNewItem(){
         )
     })
 }
-
+function numberWithCommas(amount) {
+    return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }

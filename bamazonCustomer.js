@@ -43,24 +43,18 @@ function promptAction(){
     })
 }
 function displayAllItem() {
-  connection.query("SELECT * FROM products", function(err, res) {
+    var columns = "item_id as 'Item ID', "
+    columns+= "product_name as 'Product Name', "
+    columns+= "department_name as 'Department Name', "
+    columns+= "price as Price , "
+    columns+= "stock_quantity as 'Stock Quantity' "
+  connection.query("SELECT "+ columns + " FROM products", function(err, res) {
     if (err) throw err;
     var table = res
-    // adding $ to prices and styling hearders
-    for(var i =0; i < table.length;i++){
-        
-        table[i]["Item Code"] = table[i].item_id;
-        delete table[i].item_id;
-        table[i]["Product Name"] = table[i].product_name;
-        delete table[i].product_name;
-        table[i]["Department Name"] = table[i].department_name;
-        delete table[i].department_name;
-        table[i]["Price"] = table[i].price;
-        delete table[i].price;
-        table[i].Price = "$ " + table[i].Price;
-        table[i]["In Stock"] = table[i].stock_quantity; 
-        delete table[i].stock_quantity;
+    for(var i = 0; i < table.length; i++){
+        table[i].Price ="$" + table[i].Price
     }
+
     console.table(table);
     promptAction(); 
 
@@ -99,8 +93,9 @@ function updateQuantity(response, itemId, userQuantity){
         function(error){
             if(error) throw error;
             else{
-                console.log(chalk.cyan("Congrants, your order has been place."))
-                console.log(chalk.red("Your total is "+ "$"+ updateProductSales(response, userQuantity) ))
+                updateProductSales(response,userQuantity);
+               
+                
                 
                 
             } 
@@ -122,12 +117,12 @@ function updateProductSales(response, userQuantity){
         ],
         function(error){
             if(error) throw error;
-            else{
-                
-                displayAllItem();
-                return response[0].price * userQuantity
-                
-            } 
+            console.log(chalk.cyan("Congrants, your order has been place."));
+            console.log(chalk.red("Your total is "+ "$" + (response[0].price * parseFloat(userQuantity)) ));
+            displayAllItem();
         }
     )
 }
+function numberWithCommas(amount) {
+    return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }

@@ -77,9 +77,15 @@ function displayAllItem() {
         var table = res
         // adding $  styling hearders
         for (var i = 0; i < table.length; i++) {
-            table[i].Overhead = "$ " + numberWithCommas(table[i].Overhead);
-            table[i].Totals = "$ " + numberWithCommas(table[i].Totals);
-            table[i].Profit = "$ " + numberWithCommas(table[i].Profit);
+            if(table[i].Overhead){
+                table[i].Overhead = "$ " + numberWithCommas(table[i].Overhead);
+            }
+            if(table[i].Totals){
+                table[i].Totals = "$ " + numberWithCommas(table[i].Totals);
+            }
+            if(table[i].Profit){
+                table[i].Profit = "$ " + numberWithCommas(table[i].Profit);
+            }
         }
         console.table(res);
 
@@ -88,7 +94,7 @@ function displayAllItem() {
 }
 function insertDepartments(departmentName, overhead) {
     
-    var query = "insert into departments set ? "
+    var query = "insert into departments set ?"
 
     connection.query(
         query,
@@ -100,8 +106,7 @@ function insertDepartments(departmentName, overhead) {
             if (error) throw error;
             console.log(chalk.cyan("Department added"))
             promptAction();
-        }
-    )
+        })
 }
 function addDepartment() {
     inquirer

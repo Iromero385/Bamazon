@@ -1,4 +1,8 @@
 # Bamazon
+## Introduction
+We created this project to practice *Node Js* and reading/writing to a sql database. We wrote sql queries to update inventory and add products. There are costomer view, Manager view, and Supervisor view. Each of this views have different access levels. For instants a supervisor may add departments and categories while customer cannot. 
+
+
 ## Screen Shots
 ### Customer.js
 <p> Purchasing an item and updating database</p>
